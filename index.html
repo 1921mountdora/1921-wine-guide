@@ -1,0 +1,648 @@
+<title>1921 Wine Guide</title>
+<meta name="theme-color" content="#7A2335">
+<style>
+  /* Layout: same phone-first single column as the 1921 Menu Guide — color band header, sticky search + chips, expandable cards. Sage swapped for wine. */
+  :root{
+    --wine:#7A2335; --wine-dk:#5E1A29; --wine-tint:rgba(122,35,53,.16);
+    --cream:#F7F3EF; --paper:#FFFFFF; --ink:#26211F; --ink-soft:#655B57; --rule:#E6DDD8;
+    --amber:#B3720C; --amber-bg:#FDF3DF;
+    --gold:#8C6A1E; --gold-bg:#F6EEDC;
+    --ok:#2E7D53; --ok-bg:#E6F4EC; --ok-ink:#1B5236;
+    --alert:#A62B25; --alert-bg:#FBEBE9;
+    --onwine:#FFFFFF;
+    --sw-white:#E9D9A6; --sw-rose:#E7A9A4; --sw-red:#7A2335; --sw-spark:#F1E6BF;
+    --shadow:0 1px 2px rgba(38,33,31,.06), 0 6px 18px rgba(38,33,31,.05);
+    --maxw:760px;
+  }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+    --wine:#D88C9B; --wine-dk:#E8AEB9; --wine-tint:rgba(216,140,155,.2);
+    --cream:#181415; --paper:#211B1C; --ink:#EEE8E5; --ink-soft:#AFA3A0; --rule:#352C2D;
+    --amber:#E8B860; --amber-bg:#332A16; --gold:#D9B66A; --gold-bg:#2F2717;
+    --ok:#4FAF7B; --ok-bg:#173226; --ok-ink:#8FD3AC; --alert:#F09189; --alert-bg:#3A1F1D;
+    --onwine:#1A1112; --sw-red:#B4475E;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.3); color-scheme:dark }}
+  :root[data-theme="dark"]{
+    --wine:#D88C9B; --wine-dk:#E8AEB9; --wine-tint:rgba(216,140,155,.2);
+    --cream:#181415; --paper:#211B1C; --ink:#EEE8E5; --ink-soft:#AFA3A0; --rule:#352C2D;
+    --amber:#E8B860; --amber-bg:#332A16; --gold:#D9B66A; --gold-bg:#2F2717;
+    --ok:#4FAF7B; --ok-bg:#173226; --ok-ink:#8FD3AC; --alert:#F09189; --alert-bg:#3A1F1D;
+    --onwine:#1A1112; --sw-red:#B4475E;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.3); color-scheme:dark }
+
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--cream); color:var(--ink);
+    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    -webkit-tap-highlight-color:transparent}
+  button{font:inherit}
+  :focus-visible{outline:2px solid var(--wine); outline-offset:2px}
+
+  header{background:var(--wine); color:var(--onwine); padding:18px 16px 14px; text-align:center}
+  header img{width:132px; height:auto; display:block; margin:0 auto 6px; filter:brightness(0) invert(1); opacity:.96}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) header img{filter:brightness(0); opacity:.85} }
+  :root[data-theme="dark"] header img{filter:brightness(0); opacity:.85}
+  header .sub{font-size:11px; letter-spacing:.16em; text-transform:uppercase; opacity:.85}
+
+  .controls{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; background:var(--cream);
+    border-bottom:1px solid var(--rule); padding:10px 16px 8px}
+  .cin{max-width:var(--maxw); margin:0 auto}
+  .searchwrap{position:relative}
+  #q{width:100%; padding:12px 38px 12px 14px; font-size:16px; border:1px solid var(--rule); border-radius:10px;
+    background:var(--paper); color:var(--ink); -webkit-appearance:none; appearance:none}
+  #q:focus{outline:none; border-color:var(--wine); box-shadow:0 0 0 3px var(--wine-tint)}
+  #clear{position:absolute; right:6px; top:50%; transform:translateY(-50%); border:0; background:none;
+    color:var(--ink-soft); font-size:20px; width:32px; height:32px; cursor:pointer}
+  .chiprow{display:flex; gap:8px; align-items:center; margin-top:8px}
+  .chips{display:flex; gap:6px; overflow-x:auto; padding-bottom:2px; scrollbar-width:none; flex:1; min-width:0}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto; padding:7px 13px; border-radius:999px; cursor:pointer; border:1px solid var(--rule);
+    background:var(--paper); color:var(--ink-soft); font-size:13px; white-space:nowrap}
+  .chip[aria-pressed="true"]{background:var(--wine); border-color:var(--wine); color:var(--onwine); font-weight:600}
+  #quizBtn{flex:0 0 auto; padding:7px 15px; border-radius:999px; cursor:pointer; border:1px solid var(--wine);
+    background:var(--wine); color:var(--onwine); font-size:13px; font-weight:700; letter-spacing:.03em}
+  .pairrow{display:flex; align-items:center; gap:8px; margin-top:8px; font-size:13px; color:var(--ink-soft)}
+  .pairrow label{white-space:nowrap}
+  #dish{flex:1; min-width:0; padding:8px 10px; border-radius:9px; border:1px solid var(--rule); background:var(--paper);
+    color:var(--ink); font-size:14px}
+
+  main{max-width:var(--maxw); margin:0 auto; padding:12px 16px 60px}
+  .banner{background:var(--amber-bg); color:var(--amber); border-radius:10px; padding:11px 13px; font-size:13px; margin:4px 0 6px; line-height:1.45}
+  .status-line{font-size:12px; color:var(--ink-soft); text-align:center; padding:8px 4px 4px}
+  .menuhead{font-size:13px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; color:var(--onwine);
+    background:var(--wine); border-radius:8px; padding:9px 12px; margin:22px 0 4px}
+  .menuhead .note{display:block; font-size:11px; letter-spacing:.04em; text-transform:none; font-weight:400; opacity:.9; margin-top:2px}
+  .section{font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--wine-dk); font-weight:700;
+    padding:18px 4px 8px; border-bottom:1px solid var(--rule); margin-bottom:8px}
+
+  .card{background:var(--paper); border:1px solid var(--rule); border-radius:12px; margin:8px 0; box-shadow:var(--shadow); overflow:hidden}
+  .cardhead{display:grid; grid-template-columns:10px 1fr; gap:12px; width:100%; text-align:left; background:none; border:0;
+    padding:13px 14px; cursor:pointer; color:inherit}
+  .swatch{width:10px; border-radius:5px; align-self:stretch; min-height:38px}
+  .sw-white{background:var(--sw-white)} .sw-rose{background:var(--sw-rose)} .sw-red{background:var(--sw-red)}
+  .sw-sparkling{background:repeating-linear-gradient(180deg,var(--sw-spark) 0 5px,var(--sw-white) 5px 7px)}
+  .hd{min-width:0}
+  .name{font-size:18px; font-weight:700; letter-spacing:-.01em; display:flex; align-items:baseline; justify-content:space-between; gap:10px}
+  .name span{min-width:0}
+  .price{font-size:14px; font-weight:600; color:var(--ink-soft); white-space:nowrap; font-variant-numeric:tabular-nums; text-align:right}
+  .line{font-size:13.5px; color:var(--ink-soft); margin-top:3px}
+  .tags{display:flex; flex-wrap:wrap; gap:5px; margin-top:8px}
+  .tag{font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:3px 8px; border-radius:5px;
+    background:var(--cream); color:var(--ink-soft)}
+  .tag.bin{background:var(--wine-tint); color:var(--wine-dk); font-variant-numeric:tabular-nums}
+  .tag.glass{background:var(--gold-bg); color:var(--gold)}
+  .tag.draft{background:var(--amber-bg); color:var(--amber)}
+  .body{display:none; padding:2px 14px 14px 36px; border-top:1px solid var(--rule)}
+  .card.open .body{display:block}
+  .field{margin-top:12px}
+  .field h4{margin:0 0 3px; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--wine-dk); font-weight:700}
+  .field p{margin:0; font-size:15px; max-width:62ch}
+  .tell{margin:14px 0 4px; padding:12px 14px; border-radius:10px; background:var(--wine-tint)}
+  .tell h4{margin:0 0 4px; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--wine-dk); font-weight:700}
+  .tell p{margin:0; font-size:16.5px; line-height:1.5; font-weight:600; max-width:60ch}
+  .dishes{display:flex; flex-wrap:wrap; gap:6px; margin-top:4px}
+  .dishbtn{border:1px solid var(--rule); background:var(--cream); color:var(--ink); border-radius:999px; padding:5px 11px; font-size:13px; cursor:pointer}
+  .updated{font-size:11px; color:var(--ink-soft); margin-top:14px; padding-top:8px; border-top:1px dashed var(--rule)}
+  mark{background:var(--amber-bg); color:inherit; border-radius:2px; padding:0 1px}
+  .empty{text-align:center; color:var(--ink-soft); padding:44px 16px; font-size:15px}
+  footer{max-width:var(--maxw); margin:0 auto; padding:24px 16px 40px; text-align:center; font-size:11.5px; color:var(--ink-soft); line-height:1.7}
+
+  /* quiz */
+  #quiz{display:none; position:fixed; inset:0; z-index:50; background:var(--cream); overflow-y:auto}
+  body.quizzing #quiz{display:block}
+  body.quizzing .controls, body.quizzing main, body.quizzing footer, body.quizzing header{display:none}
+  .qwrap{max-width:var(--maxw); margin:0 auto; padding:calc(env(safe-area-inset-top,0px) + 16px) 16px 48px}
+  .qtop{display:flex; align-items:center; justify-content:space-between; gap:12px}
+  .qtop .step{font-size:12px; color:var(--ink-soft); font-weight:600}
+  .qtop button{border:1px solid var(--rule); background:var(--paper); color:var(--ink-soft); border-radius:8px; padding:6px 12px; font-size:13px; cursor:pointer}
+  .bar{height:4px; background:var(--rule); border-radius:99px; overflow:hidden; margin:10px 0 20px}
+  .bar i{display:block; height:100%; background:var(--wine); transition:width .25s}
+  .qkind{font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--wine-dk); font-weight:700; margin:6px 0 8px}
+  .qprompt{font-size:20px; font-weight:700; line-height:1.4; margin:0 0 16px; text-wrap:balance}
+  .opts{display:flex; flex-direction:column; gap:8px}
+  .opt{width:100%; padding:12px 16px; border-radius:10px; border:1px solid var(--rule); background:var(--paper); color:var(--ink); font-size:15px; cursor:pointer; text-align:left}
+  .opt.correct{border-color:var(--ok); background:var(--ok-bg); color:var(--ok-ink); font-weight:600}
+  .opt.wrong{border-color:var(--alert); background:var(--alert-bg); color:var(--alert); font-weight:600}
+  .opt[disabled]{cursor:default}
+  .verdict{margin-top:16px; padding:14px; border-radius:10px; font-size:14.5px; line-height:1.6}
+  .verdict.ok{background:var(--ok-bg); color:var(--ok-ink)} .verdict.no{background:var(--alert-bg); color:var(--alert)}
+  .qbtn{display:block; width:100%; margin-top:20px; padding:15px; border:0; border-radius:11px; background:var(--wine); color:var(--onwine); font-size:16px; font-weight:700; cursor:pointer}
+  .score{text-align:center; padding:30px 0 6px}
+  .score .big{font-size:56px; font-weight:800; letter-spacing:-.03em; line-height:1; font-variant-numeric:tabular-nums}
+  .score .of{font-size:15px; color:var(--ink-soft); margin-top:6px}
+  @media (prefers-reduced-motion: reduce){ .bar i{transition:none} }
+</style>
+
+<header>
+  <img alt="1921 Mount Dora" src="data:image/png;base64,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">
+  <div class="sub">Wine Guide · Staff</div>
+</header>
+
+<div class="controls"><div class="cin">
+  <div class="searchwrap">
+    <input id="q" type="search" placeholder="Search wine, grape, region, producer…" autocomplete="off" aria-label="Search the wine list">
+    <button id="clear" aria-label="Clear search" hidden>×</button>
+  </div>
+  <div class="chiprow">
+    <div class="chips" id="chips" role="group" aria-label="Filter"></div>
+    <button id="quizBtn">Quiz me</button>
+  </div>
+</div></div>
+
+<main>
+  <div class="banner"><b>Prototype.</b> The by-the-glass list plus the best-selling bottles. Every fact is checked against the producer, importer or a major wine publication (sources at the bottom of each card). Drafts until Adam signs off.</div>
+  <div class="status-line" id="status"></div>
+  <div id="list"></div>
+</main>
+<footer>1921 Mount Dora · Wine Guide prototype<br>Prices match the printed list. Ask a manager before quoting a vintage that isn't shown.</footer>
+
+<div id="quiz"><div class="qwrap" id="qwrap"></div></div>
+
+<script>
+const BAKED = [
+// ---------- BY THE GLASS ----------
+{bin:'113', list:'btg', color:'sparkling', name:"XOBC 'X.O.' Sparkling Rosé", grape:'Syrah', region:'Columbia Valley, Washington', vin:"'23", glass:11, bottle:44,
+ story:"This rosé comes from a Washington winery started by Grammy-winner Brandi Carlile and friends, and every bottle helps fund her Looking Out Foundation.",
+ wine:"Mostly Syrah (about 90%) with splashes of Grenache and Mourvèdre, all from Columbia Valley vineyards.",
+ place:"Columbia Valley holds about 99% of Washington's vineyards and gets roughly two more hours of summer daylight than California.",
+ people:"Two couples started it: Brandi Carlile and her wife Catherine, with friends Jeri and Amy Andrews.",
+ src:['xobccellars.com','sipmagazine.com']},
+{bin:'119', list:'btg', color:'sparkling', name:"Stift Klosterneuburg Brut", grape:'Grüner Veltliner', region:'Austria', vin:'NV', glass:14, bottle:56,
+ story:"These bubbles come from an Augustinian abbey near Vienna that has been making wine for more than 900 years. It's Austria's oldest winery.",
+ wine:"A Brut sparkling wine made from 100% Grüner Veltliner, Austria's signature white grape.",
+ place:"Klosterneuburg sits just outside Vienna, one of the few capital cities with vineyards inside its limits.",
+ people:"The abbey was founded by Leopold III, who later became Austria's patron saint. It claims to be Europe's first carbon-neutral winery.",
+ src:['stift-klosterneuburg.at']},
+{bin:'167', list:'btg', color:'white', name:"Dr. Konstantin Frank 'Semi-Dry'", grape:'Riesling', region:'Finger Lakes, New York', vin:"'24", glass:13, bottle:52,
+ story:"Some of these Riesling vines were planted by Dr. Frank himself, the scientist experts said was crazy for trying to grow Riesling in New York.",
+ wine:"Some of the estate vines on Keuka Lake are over 60 years old. No oak, just a touch of sweetness.",
+ place:"The Finger Lakes were carved by glaciers. The deep lakes keep the vineyards along their shores 10 to 15°F warmer in winter than land a half-mile away.",
+ people:"Dr. Frank was a Ukrainian-born plant scientist. Experts said European grapes would die in New York winters; he proved them wrong.",
+ src:['drfrankwines.com']},
+{bin:'244', list:'btg', color:'white', name:"Spy Valley", grape:'Sauvignon Blanc', region:'Marlborough, New Zealand', vin:"'24", glass:12, bottle:48,
+ story:"The winery is named after the satellite spy base down the road in Marlborough's Waihopai Valley.",
+ wine:"100% Sauvignon Blanc from estate and grower vineyards across Marlborough, fermented in stainless steel and rested on its lees.",
+ place:"The Waihopai Valley was once written off as too dry and infertile for grapes.",
+ people:"Family-owned by the Johnsons. The name comes from the nearby government satellite station locals call the 'spy base'.",
+ src:['spyvalleywine.co.nz']},
+{bin:'237', list:'btg', color:'white', name:"Tommasi 'Le Fornaci' Lugana", grape:'Turbiana', region:'Lugana, Lake Garda, Italy', vin:"'24", glass:14, bottle:56,
+ story:"This white grows in clay on the southern shore of Lake Garda, made by the Tommasi family, who are best known for Amarone.",
+ wine:"100% Turbiana, the local grape, from the clay-heavy Le Fornaci vineyard near Sirmione plus a sandier inland site.",
+ place:"Lugana straddles two regions, Lombardy and the Veneto, on Lake Garda's southern shore.",
+ people:"Tommasi is a family estate from nearby Valpolicella and one of the leading names in Amarone.",
+ src:['vintus.com','decanter.com']},
+{bin:'245', list:'btg', color:'white', name:"Le Monde", grape:'Pinot Grigio', region:'Friuli, Italy', vin:'', glass:13, bottle:52,
+ story:"This Pinot Grigio grows between two rivers in Friuli, the corner of Italy that borders Austria and Slovenia.",
+ wine:"Gently pressed and kept in stainless steel from start to finish.",
+ place:"The vineyards sit between the Livenza and Meduna rivers in Friuli Grave, near the border of the Veneto.",
+ people:"Owned by Friulian entrepreneur Alex Maccan. Le Monde is best known in Italy for its Pinot Bianco.",
+ src:['wineindustryadvisor.com']},
+{bin:'345', list:'btg', color:'white', name:"Raats 'Original' Unoaked", grape:'Chenin Blanc', region:'Stellenbosch, South Africa', vin:"'24", glass:13, bottle:52,
+ story:"South Africa grows almost half the world's Chenin Blanc, and Bruwer Raats built his whole winery around it.",
+ wine:"Vines average 35 years old. Fruit from granite and sandstone soils is fermented separately and never sees oak.",
+ place:"South Africa grows nearly half of all Chenin Blanc on earth, more than the Loire, where the grape comes from. Locals call it 'Steen'.",
+ people:"Bruwer Raats built his winery around two grapes nobody wanted at the time: Chenin Blanc and Cabernet Franc.",
+ src:['alliancewine.com','decanter.com']},
+{bin:'207', list:'btg', color:'white', name:"Eden Rift 'Valliant'", grape:'Chardonnay', region:'Central Coast, California', vin:"'22", glass:15, bottle:60,
+ story:"Eden Rift sits right on top of the San Andreas Fault, on a gold-rush-era estate that may have grown California's first Pinot Noir.",
+ wine:"The name Valliant comes from a family that once owned the estate. It's Eden Rift's label for fruit from neighboring vineyards.",
+ place:"The estate sits at about 1,600 feet in the Cienega Valley on limestone and dolomite, right on the San Andreas Fault.",
+ people:"Owner Christian Pillsbury revived the old estate; the winemaker uses only native yeasts.",
+ src:['guide.michelin.com']},
+{bin:'196', list:'btg', color:'white', name:"François Carillon", grape:'Chardonnay', region:'Vin de France', vin:"'23", glass:18, bottle:72, glassware:'Burgundy Glasses',
+ story:"The Carillon family has farmed Puligny-Montrachet for about 500 years. François made this in his Burgundy cellar from grapes grown in the south of France.",
+ wine:"The grapes come from a parcel called La Bergerie near Nîmes. Because it's made outside its home region, it can only be called 'Vin de France'.",
+ place:"Puligny-Montrachet, where it's made, is home to some of the most famous white wine vineyards in the world.",
+ people:"Around 500 years of Carillons in Puligny. François and his brother Jacques split the family estate and each make their own wine.",
+ src:['corneyandbarrow.com','grandcruwijnen.nl']},
+{bin:'159', list:'btg', color:'rose', name:"Domaine de la Chanteleuserie", grape:'Cabernet Franc', region:'Bourgueil, Loire Valley', vin:"'24", glass:16, bottle:64,
+ story:"A dry Cabernet Franc rosé from a family in its seventh generation, imported by legendary importer Kermit Lynch for decades.",
+ wine:"100% Cabernet Franc from vines averaging 35 years. Most of the juice is pressed straight off the skins; some is bled from red-wine tanks.",
+ place:"Bourgueil is Loire Cabernet Franc country. These south-facing slopes sit on limestone over soft chalky tuffeau, the stone Loire castles are built from.",
+ people:"Seven generations of the Boucard family. Kermit Lynch found them on one of his early buying trips in the Loire.",
+ src:['kermitlynch.com']},
+{bin:'378', list:'btg', color:'red', name:"Domaine du Salvard", grape:'Pinot Noir & Gamay', region:'Cheverny, Loire Valley', vin:"'23", glass:13, bottle:52,
+ story:"Cheverny is one of the Loire's youngest appellations, right next to the Château de Cheverny, the castle that inspired Tintin's Marlinspike Hall.",
+ wine:"Mostly Pinot Noir and Gamay with a splash of Côt (Malbec). Short maceration, all stainless steel, for a light, fresh red.",
+ place:"Cheverny is one of the Loire's youngest and smallest appellations, on sand, clay and limestone.",
+ people:"Five generations of the Delaille family. Two brothers run it today with their father.",
+ src:['kermitlynch.com']},
+{bin:'432', list:'btg', color:'red', name:"LIOCO", grape:'Pinot Noir', region:'Mendocino County, California', vin:"'24", glass:17, bottle:68,
+ story:"LIOCO was started by a Spago sommelier and a wine importer. The name combines their last names.",
+ wine:"Blended from six Mendocino vineyards with some whole clusters, aged only in neutral oak and steel so no new-oak flavor.",
+ place:"Mendocino is California's northernmost major coastal wine county, cooler and wilder than Napa or Sonoma.",
+ people:"Matt LIcklider plus Kevin O'COnnor = LIOCO.",
+ src:['skurnik.com','princeofpinot.com']},
+{bin:'542', list:'btg', color:'red', name:"Aia Vecchia 'Lagone'", grape:'Merlot, Cabernet Sauvignon, Cabernet Franc', region:'Toscana IGT (Bolgheri)', vin:'', glass:14, bottle:56,
+ story:"Aia Vecchia means 'old farmhouse'. The family grew grapes for generations in Bolgheri, the stretch of coast that made Super Tuscans famous.",
+ wine:"A Bordeaux-style blend of Merlot and both Cabernets grown on the Tuscan coast.",
+ place:"Bolgheri was a sleepy coast of simple rosés until Sassicaia beat top Bordeaux in a blind tasting and created the Super Tuscan.",
+ people:"The Pellegrini family sold their grapes for generations before bottling their own, with help from a former Ornellaia winemaker.",
+ src:['winedispensary.com','wikipedia.org/wiki/Bolgheri']},
+{bin:'350', list:'btg', color:'red', name:"Heartland", grape:'Shiraz', region:'Langhorne Creek, South Australia', vin:"'18", glass:14, bottle:56,
+ story:"Langhorne Creek growers flood their own vineyards on purpose, using the river's winter floodwater, a trick dating back over a century.",
+ wine:"Aged about a year in older oak so fruit and spice lead, not wood.",
+ place:"There's no creek. Growers built floodgates to send the river's winter floods through the vines as natural irrigation.",
+ people:"Founded by Barossa winemaker Ben Glaetzer. His uncle John Glaetzer was Wolf Blass's head winemaker for over 30 years.",
+ src:['cellarhand.com.au','langhornecreek.com']},
+{bin:'292', list:'btg', color:'red', name:"Cellers Unió 'Perlat'", grape:'Garnatxa (Grenache)', region:'Montsant, Spain', vin:"'23", glass:14, bottle:56,
+ story:"Montsant wraps almost completely around Priorat. This Garnatxa comes from a cooperative of thousands of farming families.",
+ wine:"100% Garnatxa from organically farmed vineyards. Perlat is considered one of the founding wines of the Montsant appellation.",
+ place:"Montsant forms a ring around famous Priorat, like a donut around the hole.",
+ people:"Cellers Unió is a Catalan cooperative of more than 20,000 farming families.",
+ src:['mtouton.com']},
+{bin:'460', list:'btg', color:'red', name:"Capraia", grape:'Sangiovese', region:'Chianti Classico, Italy', vin:"'21", glass:15, bottle:60,
+ story:"Capraia sits in Castellina, one of the original Chianti villages named by a Medici grand duke about 300 years ago.",
+ wine:"Mostly Sangiovese with a little Ciliegiolo, aged in big traditional casks. Certified organic.",
+ place:"A Medici grand duke drew Chianti's borders about 300 years ago, making it one of the first official wine regions in the world.",
+ people:"Owned by Rocca di Castagnoli. Capraia was a founding member of the Chianti Classico consortium.",
+ src:['mtouton.com','wikipedia.org/wiki/Chianti']},
+{bin:'357', list:'btg', color:'red', name:"Mommessin", grape:'Gamay', region:'Beaujolais, France', vin:"'23", glass:15, bottle:60,
+ story:"For most of a century, the Mommessin family also owned Clos de Tart, one of Burgundy's legendary grand crus.",
+ wine:"100% Gamay, the Beaujolais grape, made with minimal intervention.",
+ place:"Their vineyards sit at the foot of Mont Brouilly on decomposed granite, the soil Gamay loves.",
+ people:"An old Beaujolais house. They eventually sold Clos de Tart to the billionaire owner of Château Latour.",
+ src:['winebow.com','wikipedia.org/wiki/Clos_de_Tart']},
+{bin:'554', list:'btg', color:'red', name:"L'Instant Bécot", grape:'Merlot & Cabernet Franc', region:'Bordeaux, France', vin:"'18", glass:12, bottle:48,
+ story:"This comes from the Bécot family of Château Beau-Séjour Bécot, a top-ranked Saint-Émilion estate. Same winemaking team, far gentler price.",
+ wine:"A Merlot and Cabernet Franc blend from the Bécot family's own vineyards.",
+ place:"Beau-Séjour Bécot sits on Saint-Émilion's limestone plateau, where the rock is packed with fossilized starfish.",
+ people:"Beau-Séjour Bécot was once demoted from Saint-Émilion's top ranks, then fought its way back.",
+ src:['wineenthusiast.com','wikipedia.org']},
+{bin:'435', list:'btg', color:'red', name:"BACA", grape:'Cabernet Sauvignon', region:'Napa Valley, California', vin:"'23", glass:18, bottle:72,
+ story:"BACA is Latin for 'berry'. It's from the Hall family of HALL Napa Valley, who started it as a Zinfandel label.",
+ wine:"Napa Valley Cabernet. The winery doesn't name the vineyards.",
+ place:"Napa Valley is only about 30 miles long, yet it holds 16 sub-appellations.",
+ people:"Craig and Kathryn Hall started it; their daughter ran it first.",
+ src:['bevnet.com']},
+{bin:'412', list:'btg', color:'red', name:"Domaine du Pégau 'Cuvée Réservée'", grape:'Grenache blend', region:'Châteauneuf-du-Pape, Rhône', vin:"'16", glass:29, bottle:114, coravin:true,
+ story:"Pégau is the old Provençal name for a wine jug used when the popes lived in Avignon. We pour it on Coravin so every glass is fresh.",
+ wine:"About 80% Grenache. Whole clusters, wild-yeast fermentation, two years in old oak casks, never filtered.",
+ place:"Châteauneuf-du-Pape means 'the pope's new castle'. The vineyards are covered in big round stones called galets that soak up the sun's heat.",
+ people:"Laurence Féraud runs it with her family, who have grown grapes in Châteauneuf since the 1600s.",
+ src:['bbr.com','sommselect.com']},
+// ---------- HAPPY HOUR ----------
+{bin:'141', list:'hh', color:'sparkling', name:"Veuve Dubarry 'Cuvée Prestige'", grape:'Mostly Chardonnay', region:'France', vin:'NV', glass:9,
+ story:"French sparkling wine that blends grapes from Burgundy and Alsace with riper fruit from the south. It's also the bubbles in our spritzes.",
+ wine:"Mostly Chardonnay, blended across several French regions. It's not Champagne.",
+ place:"Burgundy and Alsace bring freshness; southern France brings ripeness.",
+ people:"Imported by Monsieur Touton Selection.",
+ src:['mtouton.com']},
+{bin:'248', list:'hh', color:'white', name:"Château Bonnet Blanc", grape:'Sauvignon Blanc, Sémillon, Muscadelle', region:'Entre-Deux-Mers, Bordeaux', vin:'', glass:8,
+ story:"Entre-Deux-Mers means 'between two tides'. Château Bonnet dates back to the 1500s.",
+ wine:"Classic white Bordeaux: Sauvignon Blanc and Sémillon with a little Muscadelle, rested on its lees in steel.",
+ place:"The name refers to the land between Bordeaux's two tidal rivers, the Garonne and the Dordogne.",
+ people:"It was the home base of André Lurton, one of Bordeaux's most influential winemakers.",
+ src:['andrelurton.com']},
+{bin:'359', list:'hh', color:'red', name:"Yalumba 'Y Series'", grape:'Shiraz', region:'South Australia', vin:'', glass:8,
+ story:"Yalumba is Australia's oldest family-owned winery, started by an English brewer. The name means 'all the land around'.",
+ wine:"Made from multiple South Australian vineyards.",
+ place:"Yalumba is based in Angaston in the Barossa Valley. The name comes from an Aboriginal word meaning 'all the land around'.",
+ people:"Founded by English brewer Samuel Smith and still in his family.",
+ src:['wikipedia.org/wiki/Yalumba']},
+// ---------- BOTTLES ----------
+{bin:'101', list:'bottle', color:'sparkling', name:"Billecart-Salmon 'Le Blanc de Blancs'", grape:'Chardonnay', region:'Champagne · Grand Cru', vin:'NV', bottle:232,
+ story:"Pure Chardonnay from four Grand Cru villages, from a Champagne house started by a husband and wife and still run by their family seven generations later.",
+ wine:"100% Chardonnay from Avize, Chouilly, Cramant and Le Mesnil-sur-Oger. Extra Brut, so very little sugar is added.",
+ place:"All four villages are Grand Cru, the top rank, in the Côte des Blancs, Champagne's Chardonnay slope.",
+ people:"Billecart married Salmon, and the house is named for both of them. Still independent, seventh generation.",
+ src:['champagne-billecart.fr','millesima-usa.com']},
+{bin:'128', list:'bottle', color:'white', name:"Bernhard Ott 'Feuersbrunn'", grape:'Riesling', region:'Wagram, Austria', vin:"'18", bottle:72,
+ story:"Bernhard Ott, fourth generation of his family, farms biodynamically on the Danube, where 'Wagram' means 'the slope by the moving water'.",
+ wine:"A village wine from Feuersbrunn. Ott makes two under this name, a Riesling and a Grüner Veltliner, and Grüner is about 90% of his vines.",
+ place:"Wagram runs about 30 km along the Danube on deep loess, wind-blown dust from the Ice Age.",
+ people:"Fourth generation of his family, farming biodynamically.",
+ src:['falstaff.com','wein.plus']},
+{bin:'219', list:'bottle', color:'white', name:"Kongsgaard", grape:'Chardonnay', region:'Napa Valley, California', vin:"'23", bottle:308, glassware:'Zalto Glassware',
+ story:"John Kongsgaard learned from André Tchelistcheff, the father of modern Napa wine. He and his son make this with only the grapes' own native yeasts.",
+ wine:"Fermented only with the grapes' own wild yeasts, then a long time in French oak.",
+ place:"Carneros was the first American wine region defined by its climate. Fog off San Francisco Bay keeps it cool.",
+ people:"John Kongsgaard and his son Alex make the wine together on Atlas Peak.",
+ src:['thewineindependent.com','robersonwine.com']},
+{bin:'198', list:'bottle', color:'red', name:"Jean-Luc & Eric Burguet", grape:'Pinot Noir', region:'Vosne-Romanée, Burgundy', vin:"'19", bottle:209, glassware:'Burgundy Glasses',
+ story:"This is village Vosne-Romanée, the same village as Romanée-Conti, from two brothers who bottle it straight from barrel without filtering.",
+ wine:"Grapes are sorted three times, and the wine is bottled straight from barrel without fining or filtration.",
+ place:"Vosne-Romanée and its neighbor share eight Grand Crus, including Romanée-Conti and La Tâche, two of the most expensive wines on earth.",
+ people:"Their father Alain started the domaine with almost nothing and became an early champion of low yields. The brothers run it now.",
+ src:['bbr.com','wikipedia.org/wiki/Vosne-Romanée_wine']},
+{bin:'231', list:'bottle', color:'red', name:"Domaine Tollot-Beaut", grape:'Pinot Noir', region:'Chorey-lès-Beaune, Burgundy', vin:"'22", bottle:69, format:'375ml', glassware:'Burgundy Glasses',
+ story:"The Tollot family has farmed this village for well over a century. This half bottle is their home-village Pinot.",
+ wine:"Pinot Noir aged about 18 months in Burgundy barrels, a quarter of them new.",
+ place:"Chorey-lès-Beaune sits on the flatter land just north of Beaune and is planted almost entirely to Pinot Noir.",
+ people:"Run today by three Tollot cousins.",
+ src:['winebow.com','burgundy-report.com']},
+{bin:'371', list:'bottle', color:'red', name:"Castello di Neive", grape:'Nebbiolo', region:'Barbaresco, Piedmont', vin:'', bottle:99,
+ story:"This Barbaresco comes from an 18th-century castle whose family also saved the Arneis grape from near-extinction in the 1970s.",
+ wine:"100% Nebbiolo from four vineyards including Santo Stefano. Vines average 30 years; the wine spends two years in oak.",
+ place:"Neive is one of the three main villages of Barbaresco. Santo Stefano is one of its most famous vineyards.",
+ people:"The Stupino family owns the castle. Italo Stupino led the research that rescued the Arneis grape.",
+ src:['castellodineive.it','winebow.com']},
+{bin:'639', list:'bottle', color:'red', name:"La Spinetta 'Bordini'", grape:'Nebbiolo', region:'Barbaresco, Piedmont', vin:"'20", bottle:151,
+ story:"One family farmed this vineyard for over 300 years. It still carries their name.",
+ wine:"Single-vineyard Nebbiolo from 40-year-old vines on limestone, farmed organically, unfined and unfiltered.",
+ place:"Bordini is a 4-hectare vineyard in the village of Neive.",
+ people:"La Spinetta's Giorgio Rivetti bought it from the last of the Bordini family.",
+ src:['skurnik.com']},
+{bin:'254', list:'bottle', color:'red', name:"Tenuta di Aglaea", grape:'Nerello Mascalese', region:'Etna Rosso, Sicily', vin:"'18", bottle:48,
+ story:"A Danish winemaker founded this small estate high on Mount Etna and named it for Aglaea, youngest of the Three Graces.",
+ wine:"Nerello Mascalese from small plots around Randazzo and Passopisciaro, 700 to 800 meters up Etna's north side.",
+ place:"Phylloxera, the pest that wiped out most of Europe's vineyards, never took hold on Etna's volcanic sand, so very old vines still grow on their own roots.",
+ people:"Founded by Anne-Louise Mikkelsen, a Danish winemaker who fell for Etna.",
+ src:['winedering.com','sommselect.com']},
+{bin:'721', list:'bottle', color:'red', name:"Turley 'Ueberroth Vineyard'", grape:'Zinfandel', region:'Paso Robles, California', vin:"'23", bottle:126,
+ story:"These Zinfandel vines were planted in 1885, on their own roots, on limestone hills close enough to smell the Pacific.",
+ wine:"Turley's oldest Zinfandel vineyard: own-rooted, head-trained, dry-farmed and certified organic.",
+ place:"Willow Creek District, Paso Robles. Limestone soils, with coastal fog and wind keeping it cool.",
+ people:"Turley Wine Cellars specializes in old-vine Zinfandel. The Paso Robles wine association says Ueberroth may be the oldest vineyard in Paso.",
+ src:['turleywinecellars.com','pasowine.com']},
+{bin:'945', list:'bottle', color:'red', name:"Masseto", grape:'Merlot', region:'Toscana IGT (Bolgheri)', vin:'2004', reserve:true, bottle:1830, glassware:'Zalto Glassware',
+ story:"Masseto is pure Merlot from a single hill of blue clay that was once seabed, planted after André Tchelistcheff said the soil was made for Merlot.",
+ wine:"100% Merlot from one 7-hectare hillside. The name comes from 'massi', the rock-hard clay lumps on the vineyard surface.",
+ place:"The blue clay was seabed millions of years ago and still holds marine fossils. It's labeled Toscana IGT, not Bolgheri DOC.",
+ people:"Lodovico Antinori created it as part of Ornellaia. Now owned by the Frescobaldi family, Florentine winemakers for 700 years.",
+ src:['decanter.com','winewithseth.com']},
+{bin:'116', list:'bottle', color:'sparkling', name:"Gaston Belvigne", grape:'Pinot Noir, Meunier, Chardonnay', region:'Champagne', vin:'NV', bottle:88,
+ story:"Three corners of Champagne in one glass: Pinot Noir from the far south, Meunier from the Marne Valley, Chardonnay from the Sézanne slopes.",
+ wine:"About 45% Pinot Noir, 30% Meunier and 25% Chardonnay, each from a different part of Champagne.",
+ place:"Champagne's chalk subsoil works like a sponge, feeding the vines water all year, even in dry summers.",
+ people:"A private label: Champagne made for an importer rather than a famous house, which is why it costs less than the big names.", src:['mtouton.com']},
+{bin:'121', list:'bottle', color:'sparkling', name:"Zardetto", grape:'Glera', region:'Prosecco, Veneto', vin:'NV', bottle:38,
+ story:"Zardetto was one of the first families to bring Prosecco to America, and they've grown grapes in these hills for over a century.",
+ wine:"Mostly Glera, the Prosecco grape. The bubbles are made in big pressurized tanks, which keeps it fresh and fruity.",
+ place:"The family vineyards sit on clay and chalk hills at the foot of the Alps, near Conegliano.",
+ people:"Bepi Zardetto planted the family's first vines. His descendant Fabio makes the wine today.", src:['winebow.com']},
+{bin:'106', list:'bottle', color:'sparkling', name:"Krug 'Grande Cuvée'", grape:'Pinot Noir, Chardonnay, Meunier', region:'Champagne', vin:'NV', bottle:384, format:'375ml', glassware:'Zalto Glassware',
+ story:"Every Krug Grande Cuvée blends over 100 different wines from more than ten different years, and each bottle has an ID code that tells its story.",
+ wine:"Each release is a numbered 'Édition'. One recent edition blended 150 wines from 13 different years.",
+ place:"Krug is based in Reims, the cathedral city where French kings were crowned for centuries.",
+ people:"Joseph Krug founded the house to make the best Champagne possible every single year, no matter the weather. His family still leads it.", src:['krug.com']},
+{bin:'183', list:'bottle', color:'sparkling', name:"Henri Champliau Crémant Rosé", grape:'Pinot Noir', region:'Crémant de Bourgogne', vin:'NV', bottle:72,
+ story:"Named for the winemaker's grandfather, who loved two things in Burgundy: racehorses and wine.",
+ wine:"Made exactly like Champagne, with the second fermentation in the bottle, but from Burgundy.",
+ place:"Mercurey, in southern Burgundy, is the quieter, better-value neighbor of the famous Côte d'Or.",
+ people:"Winemaker Alexandre Graffard turns down about two of every three loads of grapes he's offered.", src:['winebow.com']},
+{bin:'187', list:'bottle', color:'white', name:"Le Petit Silex", grape:'Sauvignon Blanc', region:'Sancerre, Loire Valley', vin:"'22", bottle:62,
+ story:"Silex is French for flint, and Sancerre's flint soils give some of the Loire's most perfumed Sauvignon Blanc.",
+ wine:"Blended from plots on several of Sancerre's soil types for depth.",
+ place:"Sancerre has three main soils: chalk, limestone-gravel and flint. The flint plots near the village make the longest-lived wines.",
+ people:"A private label for an importer, so the grower stays anonymous. The flint is the story.", src:['mtouton.com']},
+{bin:'166', list:'bottle', color:'white', name:"Domaine des Malandes 'Montmains'", grape:'Chardonnay', region:'Chablis Premier Cru', vin:"'20", bottle:83, glassware:'Burgundy Glasses',
+ story:"Chablis vines grow in an ancient seabed. The soil is packed with tiny fossilized oyster shells.",
+ wine:"Montmains is a Premier Cru vineyard. Malandes uses oak so gently you can't taste it.",
+ place:"The Kimmeridgian limestone under Chablis is so famous it gives its name to the whole geological layer.",
+ people:"Family-run, with some vineyards still plowed by horse.", src:['insideburgundy.com']},
+{bin:'202', list:'bottle', color:'white', name:"Nicolas Joly 'Coulée de Serrant'", grape:'Chenin Blanc', region:'Savennières-Coulée-de-Serrant, Loire', vin:"'22", bottle:298,
+ story:"Monks planted this vineyard almost 900 years ago, and it's one of the only single vineyards in France that is its own appellation.",
+ wine:"100% Chenin Blanc from one walled vineyard of about 17 acres. One family owns all of it.",
+ place:"Cistercian monks first planted this steep slope above the Loire in the 1100s.",
+ people:"Nicolas Joly left a Wall Street banking career to come home and became the world's best-known voice for biodynamic farming.", src:['wikipedia.org','thewinedoctor.com']},
+{bin:'217', list:'bottle', color:'white', name:"Shafer 'Red Shoulder Ranch'", grape:'Chardonnay', region:'Carneros, California', vin:"'22", bottle:138, glassware:'Burgundy Glasses',
+ story:"The vineyard is named for the red-shouldered hawks that hunt its gophers, so Shafer never has to use poison.",
+ wine:"No malolactic fermentation, which keeps it bright instead of buttery. Wild yeast, mostly in barrel.",
+ place:"Carneros is where Napa meets the top of San Francisco Bay, cooled by fog and wind off the water.",
+ people:"Shafer is famous for Napa Cabernet; they went to cool Carneros specifically to grow Chardonnay.", src:['sfwtc.com']},
+{bin:'253', list:'bottle', color:'red', name:"The Eyrie Vineyards", grape:'Pinot Noir', region:'Dundee Hills, Oregon', vin:"'21", bottle:119, glassware:'Burgundy Glasses',
+ story:"David Lett planted the first Pinot Noir in the Willamette Valley against his professors' advice. People called him 'Papa Pinot'.",
+ wine:"Organic estate vineyards in the Dundee Hills that have never been irrigated.",
+ place:"An Eyrie Pinot nearly beat Burgundy in a French blind tasting, which convinced the Burgundy house Drouhin to buy land in Oregon.",
+ people:"The Letts also made America's first Pinot Gris. Their son Jason makes the wine today.", src:['wikipedia.org','winewithseth.com']},
+{bin:'337', list:'bottle', color:'red', name:"Ponzi 'Tavola'", grape:'Pinot Noir', region:'Willamette Valley, Oregon', vin:"'23", bottle:60, glassware:'Burgundy Glasses',
+ story:"When the Ponzis made their first four barrels, they were one of only five wineries in the entire state of Oregon.",
+ wine:"Tavola is Italian for 'table'. It's their everyday Pinot.",
+ place:"Grapes come from three of the Willamette Valley's best sub-regions, including the Chehalem Mountains.",
+ people:"Dick and Nancy Ponzi were Oregon pioneers. Today the winery belongs to Champagne Bollinger.", src:['vintus.com']},
+{bin:'408', list:'bottle', color:'red', name:"Argyle 'Nuthouse'", grape:'Pinot Noir', region:'Eola-Amity Hills, Oregon', vin:"'22", bottle:80, glassware:'Burgundy Glasses',
+ story:"Nuthouse is named for Argyle's first winery, an old hazelnut-drying barn in Dundee.",
+ wine:"All from Argyle's own Lone Star Vineyard.",
+ place:"",
+ people:"An Australian and a Texan founded Argyle to make Oregon sparkling wine first.", src:['princeofpinot.com']},
+{bin:'496', list:'bottle', color:'red', name:"Hamilton Russell", grape:'Pinot Noir', region:'Hemel-en-Aarde, South Africa', vin:"'24", bottle:118, glassware:'Burgundy Glasses',
+ story:"Hemel-en-Aarde means 'Heaven and Earth'. It's one of the southernmost vineyards in Africa, under a mile from the cold Atlantic.",
+ wine:"The estate grows only two grapes, Pinot Noir and Chardonnay, on stony, iron-rich clay.",
+ place:"A cold ocean current keeps this valley at the tip of Africa cool enough for Burgundy's grapes.",
+ people:"Tim Hamilton Russell spent years searching South Africa for its coolest site. His son Anthony runs it now.", src:['winewithseth.com']},
+{bin:'474', list:'bottle', color:'red', name:"Bouchard Père et Fils 'Le Corton'", grape:'Pinot Noir', region:'Corton Grand Cru, Burgundy', vin:"'16", bottle:329, glassware:'Zalto Glassware',
+ story:"Bouchard has made wine in Beaune for nearly 300 years, and its cellars sit under a 15th-century royal fortress.",
+ wine:"Le Corton is the vineyard at the top of the hill of Corton.",
+ place:"Corton is the only hill in the Côte de Beaune that makes red Grand Cru. Every other Grand Cru there is white.",
+ people:"Bouchard owns more Beaune Premier Cru vineyards than anyone, and its cellar holds bottles from the 1800s.", src:['idealwine.net']},
+{bin:'232', list:'bottle', color:'red', name:"Arianna Occhipinti 'Frappato'", grape:'Frappato', region:'Sicily', vin:"'22", bottle:104,
+ story:"Arianna Occhipinti made her first wine at 22 on about one hectare in Sicily. Now she's one of Italy's most famous natural winemakers.",
+ wine:"Frappato is a native Sicilian grape. Biodynamic farming, wild yeast, no filtering.",
+ place:"Vittoria, in Sicily's southeast corner, is home to the island's only DOCG.",
+ people:"Her uncle runs COS, a cult estate nearby. She tagged along with him to Italy's biggest wine fair at 16.", src:['wikipedia.org','decanter.com']},
+{bin:'580', list:'bottle', color:'red', name:"Catena 'Vista Flores'", grape:'Malbec', region:'Uco Valley, Mendoza', vin:"'23", bottle:48,
+ story:"These Malbec vines grow over 3,600 feet up in the Andes, and the Catena family has bought grapes from this one village for three generations.",
+ wine:"100% Malbec from a single high-altitude vineyard in Vista Flores.",
+ place:"The Uco Valley sits right at the foot of the Andes, on sand over river rocks washed down from the mountains.",
+ people:"The Catenas are Argentina's best-known wine family and pioneers of high-altitude Malbec.", src:['catenazapata.com','winebow.com']},
+{bin:'255', list:'bottle', color:'red', name:"Honig", grape:'Cabernet Sauvignon', region:'Napa Valley, California', vin:"'22", bottle:106,
+ story:"Honig trained dogs to sniff out vineyard pests, so they can treat just the problem vines instead of spraying everything.",
+ wine:"Napa Cabernet from a family winery in Rutherford.",
+ place:"Rutherford, in the middle of Napa Valley, is one of its classic Cabernet neighborhoods.",
+ people:"Michael Honig took over his family's struggling winery at 22 and went on to lead California's first sustainable-farming code.", src:['honigwine.com']},
+{bin:'520', list:'bottle', color:'red', name:"Textbook", grape:'Cabernet Sauvignon', region:'Napa Valley, California', vin:"'22", bottle:73,
+ story:"The winemaker tasted his first barrel and called it a 'textbook' Oakville Cabernet. The name stuck.",
+ wine:"The first vintages came from an Oakville vineyard right next door to Screaming Eagle.",
+ place:"Oakville is home to some of the most famous Cabernet vineyards in America.",
+ people:"A husband-and-wife winery. Jonathan Pey still makes the wine.", src:['napawineproject.com']},
+{bin:'618', list:'bottle', color:'red', name:"Turnbull", grape:'Cabernet Sauvignon', region:'Napa Valley, California', vin:"'23", bottle:84,
+ story:"Turnbull's tasting room holds one of the world's largest private collections of Ansel Adams photographs.",
+ wine:"Turnbull only uses grapes from vineyards it owns, which is rarer in Napa than you'd think.",
+ place:"The redwood winery was designed by architect William Turnbull, famous for Sea Ranch on the Sonoma coast.",
+ people:"The owner's photography collection hangs all over the winery, even beside the tanks.", src:['afar.com']},
+{bin:'825', list:'bottle', color:'red', name:"Betz 'Père de Famille'", grape:'Cabernet Sauvignon', region:'Columbia Valley, Washington', vin:"'17", bottle:109,
+ story:"Bob Betz was one of the first Americans to become a Master of Wine. 'Père de Famille' means 'father of the family'.",
+ wine:"The flagship Bordeaux-style Cabernet, from top Washington vineyards like Red Willow.",
+ place:"Eastern Washington is high desert with long, sunny summer days, perfect for Cabernet.",
+ people:"Bob Betz spent nearly 30 years at Chateau Ste. Michelle before starting his own small family winery.", src:['winewithseth.com']},
+{bin:'541', list:'bottle', color:'red', name:"Spottswoode 'Lyndenhurst'", grape:'Cabernet Sauvignon', region:'St. Helena, Napa Valley', vin:"'19", bottle:188,
+ story:"For a short time the Spottswoode estate was called 'Lyndenhurst' after its linden trees, and those trees are still there.",
+ wine:"Spottswoode's second Cabernet, named for the estate's old name.",
+ place:"The vineyard was first planted in 1882 at the foot of the Mayacamas Mountains.",
+ people:"Run by the Novak family, among the first in Napa to farm organically.", src:['spottswoode.com','sommselect.com']},
+{bin:'494', list:'bottle', color:'red', name:"Shafer 'One Point Five'", grape:'Cabernet Sauvignon', region:'Stags Leap District, Napa', vin:"'21", bottle:168, format:'375ml',
+ story:"One Point Five means one and a half generations: father and son built the winery side by side.",
+ wine:"Stags Leap Cabernet from the same hillsides as Shafer's very first Cabernet.",
+ place:"Stags Leap is a tiny district known for rocky hillsides and silky Cabernet.",
+ people:"Doug Shafer joined his father John as winemaker when the winery was only a couple of years old.", src:['vinography.com']},
+{bin:'358', list:'bottle', color:'red', name:"Ridge 'Lytton Springs'", grape:'Zinfandel blend', region:'Dry Creek Valley, Sonoma', vin:"'23", bottle:116,
+ story:"Some of these vines are over 100 years old, planted as an old-fashioned field blend with several grapes mixed in the same rows.",
+ wine:"Mostly Zinfandel, with Petite Sirah, Carignane and a few others, the way Italian immigrants planted.",
+ place:"The vineyard once belonged to a 'Captain' Litton; the spelling drifted to Lytton over time.",
+ people:"Ridge has made this wine for over 50 years and eventually bought the vineyard.", src:['ridgewine.com']},
+{bin:'398', list:'bottle', color:'red', name:"Ridge 'Monte Bello'", grape:'Cabernet Sauvignon blend', region:'Santa Cruz Mountains, California', vin:"'14", bottle:364, glassware:'Zalto Glassware',
+ story:"Monte Bello was in the famous 1976 Judgment of Paris, and when they held the rematch 30 years later, it came out number one.",
+ wine:"Mostly Cabernet with Merlot, Cabernet Franc and Petit Verdot. Often called 'America's First Growth'.",
+ place:"Up to 2,700 feet high on limestone, about 15 miles from the Pacific, one of California's coolest Cabernet sites.",
+ people:"Four Stanford research engineers bought the old mountain vineyard and started Ridge.", src:['ridgewine.com','wikipedia.org']}
+];
+
+const FEED_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxFNHs_VCVe5HJMF5CRfOPDXvtJ9MyPw1gM7f-pGfllphSYdujVJ5LexnV35lwnm9UWO0GrhQY5PP7/pub?gid=2133263892&single=true&output=csv';
+let WINES = BAKED, SOURCE = 'saved copy';
+function parseCSV(t){ const rows=[]; let row=[], f='', q=false;
+  for (let i=0;i<t.length;i++){ const c=t[i];
+    if (q){ if(c=='"'){ if(t[i+1]=='"'){f+='"';i++} else q=false } else f+=c; }
+    else if (c=='"') q=true; else if (c==','){ row.push(f); f=''; }
+    else if (c=='\n'||c=='\r'){ if(c=='\r'&&t[i+1]=='\n') i++; row.push(f); rows.push(row); row=[]; f=''; }
+    else f+=c; }
+  if (f!==''||row.length){ row.push(f); rows.push(row); } return rows; }
+function fromCSV(t){
+  const R=parseCSV(t); const H=R.shift().map(h=>h.trim()); const ix=n=>H.indexOf(n);
+  const g=(r,n)=>{ const i=ix(n); return i<0?'':String(r[i]??'').trim(); };
+  const num=v=>{ const x=parseFloat(String(v).replace(/[$,]/g,'')); return isNaN(x)?'':x; };
+  const LIST={'by the glass':'btg','btg':'btg','happy hour':'hh','hh':'hh','bottle':'bottle'};
+  const COL={'sparkling':'sparkling','white':'white','rosé':'rose','rose':'rose','red':'red'};
+  return R.filter(r=>g(r,'Wine') && !/^(hide|hidden|off)$/i.test(g(r,'Status'))).map(r=>({
+    bin:g(r,'Bin'), list:LIST[g(r,'List').toLowerCase()]||'bottle', color:COL[g(r,'Color').toLowerCase()]||'red',
+    geek:/^(y|yes|x|true|1|✓|geek)$/i.test(g(r,'Geek')), name:g(r,'Wine'), grape:g(r,'Grape'), region:g(r,'Region'),
+    vin:g(r,'Vintage').replace(/^’/,"'"), glass:num(g(r,'Glass $')), bottle:num(g(r,'Bottle $')), format:g(r,'Format'),
+    glassware:g(r,'Glassware'), story:g(r,'Tell the table'), wine:g(r,'The wine'), place:g(r,'The place'), people:g(r,'The people'),
+    src:g(r,'Sources').split(/\s*,\s*/).filter(Boolean), status:g(r,'Status')}));
+}
+try{ const c=JSON.parse(localStorage.getItem('wg_feed')||'null'); if(c&&c.length){ WINES=c; SOURCE='saved copy'; } }catch(e){}
+async function loadFeed(){
+  try{ const r=await fetch(FEED_URL,{cache:'no-store'}); if(!r.ok) throw 0; const w=fromCSV(await r.text());
+    if (w.length>5){ WINES=w; SOURCE='live'; try{localStorage.setItem('wg_feed',JSON.stringify(w))}catch(e){} render(); } }catch(e){}
+}
+
+const CHIPS = [
+  {k:'all', label:'All'},
+  {k:'btg', label:'By the Glass'},
+  {k:'bottle', label:'Bottles'},
+  {k:'sparkling', label:'Bubbles'},
+  {k:'white', label:'Whites'},
+  {k:'rose', label:'Rosé'},
+  {k:'red', label:'Reds'},
+  {k:'geek', label:'Geek'}
+];
+const state = {chip:'all', q:'', dish:'', open:new Set()};
+try{ const s = JSON.parse(localStorage.getItem('wg_state')||'{}'); if(s.chip) state.chip=s.chip; }catch(e){}
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s??'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const money = n => '$' + Number(n).toLocaleString('en-US');
+const LISTS = {btg:['By the Glass','Glass / bottle'], bottle:['Bottle List','Bottle']};
+const COLOR_ORDER = {sparkling:0, white:1, rose:2, red:3};
+
+function hay(w){ return [w.bin, w.name, w.grape, w.region, w.vin, w.story, w.wine, w.place, w.people, (w.pairs||[]).join(' '), w.glassware||'', w.format||''].join(' ').toLowerCase(); }
+function hl(t){ if(!state.q) return esc(t); const q = state.q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); return esc(t).replace(new RegExp('('+q+')','ig'),'<mark>$1</mark>'); }
+function priceOf(w){
+  if (w.list==='btg') return money(w.glass) + ' / ' + money(w.bottle);
+  if (w.list==='hh') return money(w.glass);
+  return money(w.bottle);
+}
+function matches(w){
+  const c = state.chip;
+  if (c==='geek') return false;
+  if (c==='btg'){ if (w.list!=='btg' && w.list!=='hh') return false; }
+  else if (c==='bottle'){ if (w.list!=='bottle') return false; }
+  else if (c!=='all' && w.color!==c) return false;
+  if (state.q && !hay(w).includes(state.q.toLowerCase())) return false;
+  return true;
+}
+function card(w, i, pre){
+  const id = (pre||'w')+i;
+  const tags = [];
+  if (w.list==='hh') tags.push('<span class="tag">Happy Hour</span>');
+  if (w.format) tags.push('<span class="tag">'+esc(w.format)+'</span>');
+  if (w.coravin) tags.push('<span class="tag">Coravin</span>');
+  if (w.glassware) tags.push('<span class="tag glass">'+esc(w.glassware)+'</span>');
+  const line = [w.grape, w.region, w.vin].filter(Boolean).map(hl).join(' · ');
+  const fact = (k,h) => w[k] ? '<div class="field fact"><h4>'+h+'</h4><p>'+hl(w[k])+'</p></div>' : '';
+  return '<div class="card'+(state.open.has(id)?' open':'')+'" id="'+id+'">'+
+    '<button class="cardhead" aria-expanded="'+state.open.has(id)+'" data-id="'+id+'">'+
+      '<span class="swatch sw-'+w.color+'" aria-hidden="true"></span>'+
+      '<span class="hd"><span class="name"><span>'+hl(w.name)+'</span><span class="price">'+priceOf(w)+'</span></span>'+
+      '<span class="line" style="display:block">'+line+'</span>'+
+      (tags.length?'<span class="tags">'+tags.join('')+'</span>':'')+'</span>'+
+    '</button>'+
+    '<div class="body">'+
+      '<div class="tell"><h4>Tell the table</h4><p>'+hl(w.story)+'</p></div>'+
+      fact('wine','The wine')+fact('place','The place')+fact('people','The people')+
+      '<div class="updated">'+(w.bin?'Bin '+esc(w.bin)+' · ':'')+esc(w.status||'')+(w.status?' · ':'')+'sources: '+esc((w.src||[]).join(', '))+'</div>'+
+    '</div></div>';
+}
+function render(){
+  const out = [];
+  let n = 0;
+  ['btg','bottle'].forEach(list => {
+    const rows = WINES.map((w,i)=>[w,i]).filter(([w])=>(w.list===list || (list==='btg' && w.list==='hh')) && matches(w))
+      .sort((a,b)=> (COLOR_ORDER[a[0].color]-COLOR_ORDER[b[0].color]) || (list==='bottle' ? String(a[0].bin).localeCompare(String(b[0].bin)) : a[1]-b[1]));
+    if (!rows.length) return;
+    n += rows.length;
+    out.push('<div class="menuhead">'+LISTS[list][0]+'<span class="note">'+LISTS[list][1]+' price · '+rows.length+' wine'+(rows.length>1?'s':'')+'</span></div>');
+    let lastColor = null;
+    rows.forEach(([w,i]) => {
+      if (w.color!==lastColor){ out.push('<div class="section">'+({sparkling:'Sparkling',white:'White',rose:'Rosé',red:'Red'})[w.color]+'</div>'); lastColor=w.color; }
+      out.push(card(w,i));
+    });
+  });
+  if (state.chip==='all' || state.chip==='geek'){
+    const g = WINES.map((w,i)=>[w,i]).filter(([w])=>w.geek && (!state.q || hay(w).includes(state.q.toLowerCase())))
+      .sort((a,b)=> (COLOR_ORDER[a[0].color]-COLOR_ORDER[b[0].color]) || String(a[0].bin).localeCompare(String(b[0].bin)));
+    if (g.length){
+      if (state.chip==='geek') n += g.length;
+      out.push('<div class="menuhead">Geek<span class="note">For the wine nerds · '+g.length+' wine'+(g.length>1?'s':'')+'</span></div>');
+      g.forEach(([w,i]) => out.push(card(w,i,'g')));
+    } else if (state.chip==='geek') {
+      out.push('<div class="empty">No Geek picks yet. Mark wines in the Geek column of the Wine Facts sheet.</div>');
+    }
+  }
+  $('#list').innerHTML = out.join('') || '<div class="empty">No wines match. Try another search.</div>';
+  $('#status').innerHTML = n + ' of ' + WINES.length + ' wines' + (SOURCE==='live'?' · live from the sheet':'');
+  $('#clear').hidden = !state.q;
+  document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', c.dataset.k===state.chip));
+}
+
+$('#chips').innerHTML = CHIPS.map(c => '<button class="chip" data-k="'+c.k+'">'+c.label+'</button>').join('');
+$('#chips').addEventListener('click', e => { const b=e.target.closest('.chip'); if(!b) return; state.chip=b.dataset.k; try{localStorage.setItem('wg_state',JSON.stringify({chip:state.chip}))}catch(e){} render(); });
+$('#q').addEventListener('input', e => { state.q=e.target.value.trim(); render(); });
+$('#clear').addEventListener('click', () => { $('#q').value=''; state.q=''; render(); $('#q').focus(); });
+$('#list').addEventListener('click', e => {
+  const h = e.target.closest('.cardhead'); if(!h) return;
+  const id=h.dataset.id; state.open.has(id)?state.open.delete(id):state.open.add(id);
+  const c=document.getElementById(id); c.classList.toggle('open'); h.setAttribute('aria-expanded', c.classList.contains('open'));
+});
+
+/* ---------- quiz ---------- */
+const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; };
+const pick = a => a[Math.floor(Math.random()*a.length)];
+function opts(correct, pool){ return shuffle([correct, ...shuffle([...new Set(pool.filter(x=>x && x!==correct))]).slice(0,3)]); }
+const scrub = (w, t) => { let x=t; w.name.replace(/['"]/g,'').split(/[\s&,.]+/).filter(p=>p.length>3).forEach(p=>{ x=x.replace(new RegExp(p,'ig'),'____'); }); return x; };
+const GEN = [
+  () => { const w=pick(WINES); return {kind:'Which wine?', prompt:'"'+scrub(w,w.story)+'"', options:opts(w.name, WINES.map(x=>x.name)), answer:w.name, why:w.story}; },
+  () => { const w=pick(WINES.filter(x=>x.people)); return {kind:'The people', prompt:scrub(w,w.people), options:opts(w.name, WINES.map(x=>x.name)), answer:w.name, why:w.people}; },
+  () => { const w=pick(WINES.filter(x=>x.place)); return {kind:'The place', prompt:scrub(w,w.place)+' Which wine is this?', options:opts(w.name, WINES.map(x=>x.name)), answer:w.name, why:w.name+' · '+w.region+'. '+w.place}; },
+  () => { const w=pick(WINES); return {kind:'Grape', prompt:'What grape is '+w.name+'?', options:opts(w.grape, WINES.map(x=>x.grape)), answer:w.grape, why:w.name+' is '+w.grape+' from '+w.region+'.'}; }
+];
+let Q=[], qi=0, score=0;
+function startQuiz(){
+  Q=[]; const seen=new Set(); let guard=0;
+  while(Q.length<8 && guard++<200){ const q=GEN[Q.length%GEN.length](); if(seen.has(q.prompt)) continue; seen.add(q.prompt); Q.push(q); }
+  Q=shuffle(Q); qi=0; score=0; document.body.classList.add('quizzing'); showQ();
+}
+function showQ(){
+  const q=Q[qi];
+  $('#qwrap').innerHTML = '<div class="qtop"><span class="step">Question '+(qi+1)+' of '+Q.length+'</span><button id="qexit">Exit</button></div>'+
+    '<div class="bar"><i style="width:'+(qi/Q.length*100)+'%"></i></div>'+
+    '<div class="qkind">'+esc(q.kind)+'</div><p class="qprompt">'+esc(q.prompt)+'</p>'+
+    '<div class="opts">'+q.options.map(o=>'<button class="opt" data-o="'+esc(o)+'">'+esc(o)+'</button>').join('')+'</div><div id="after"></div>';
+}
+function finish(){
+  $('#qwrap').innerHTML = '<div class="qtop"><span class="step">Done</span><button id="qexit">Back to the list</button></div>'+
+    '<div class="score"><div class="big">'+score+'/'+Q.length+'</div><div class="of">'+(score===Q.length?'Perfect. You know the list.':score>=Q.length*.75?'Strong. Review the misses and go again.':'Open a few cards and try again.')+'</div></div>'+
+    '<button class="qbtn" id="again">New quiz</button>';
+}
+$('#quizBtn').addEventListener('click', startQuiz);
+$('#qwrap').addEventListener('click', e => {
+  if (e.target.id==='qexit'){ document.body.classList.remove('quizzing'); return; }
+  if (e.target.id==='again'){ startQuiz(); return; }
+  if (e.target.id==='next'){ qi++; qi<Q.length ? showQ() : finish(); return; }
+  const b=e.target.closest('.opt'); if(!b||b.disabled) return;
+  const q=Q[qi], ok=b.dataset.o===q.answer; if(ok) score++;
+  document.querySelectorAll('.opt').forEach(o=>{ o.disabled=true; if(o.dataset.o===q.answer) o.classList.add('correct'); else if(o===b) o.classList.add('wrong'); });
+  $('#after').innerHTML='<div class="verdict '+(ok?'ok':'no')+'">'+(ok?'Correct. ':'The answer is <b>'+esc(q.answer)+'</b>. ')+esc(q.why)+'</div>'+
+    '<button class="qbtn" id="next">'+(qi+1<Q.length?'Next question':'See score')+'</button>';
+});
+render();
+loadFeed();
+</script>
