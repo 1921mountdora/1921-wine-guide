@@ -136,6 +136,10 @@
   .score .big{font-size:56px; font-weight:800; letter-spacing:-.03em; line-height:1; font-variant-numeric:tabular-nums}
   .score .of{font-size:15px; color:var(--ink-soft); margin-top:6px}
   @media (prefers-reduced-motion: reduce){ .bar i{transition:none} }
+  .origin{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;margin:0 0 12px;font-size:12.5px;letter-spacing:.01em;color:var(--ink-soft)}
+  .origin span{padding:3px 9px;border:1px solid var(--rule);border-radius:999px;line-height:1.3}
+  .origin span:last-child{border-color:var(--wine);color:var(--wine);font-weight:600}
+  .origin i{font-style:normal;opacity:.6}
 </style>
 
 <header>
@@ -503,7 +507,7 @@ function fromCSV(t){
     geek:/^(y|yes|x|true|1|✓|geek)$/i.test(g(r,'Geek')), name:g(r,'Wine'), grape:g(r,'Grape'), region:g(r,'Region'),
     vin:g(r,'Vintage').replace(/^’/,"'"), glass:num(g(r,'Glass $')), bottle:num(g(r,'Bottle $')), format:g(r,'Format'),
     glassware:g(r,'Glassware'), story:g(r,'Tell the table'), wine:g(r,'The wine'), place:g(r,'The place'), people:g(r,'The people'),
-    src:g(r,'Sources').split(/\s*,\s*/).filter(Boolean), status:g(r,'Status')}));
+    origin:g(r,'Origin'), src:g(r,'Sources').split(/\s*,\s*/).filter(Boolean), status:g(r,'Status')}));
 }
 try{ const c=JSON.parse(localStorage.getItem('wg_feed')||'null'); if(c&&c.length){ WINES=c; SOURCE='saved copy'; } }catch(e){}
 async function loadFeed(){
@@ -530,7 +534,7 @@ const money = n => '$' + Number(n).toLocaleString('en-US');
 const LISTS = {btg:['By the Glass','Glass / bottle'], bottle:['Bottle List','Bottle']};
 const COLOR_ORDER = {sparkling:0, white:1, rose:2, red:3};
 
-function hay(w){ return [w.bin, w.name, w.grape, w.region, w.vin, w.story, w.wine, w.place, w.people, (w.pairs||[]).join(' '), w.glassware||'', w.format||''].join(' ').toLowerCase(); }
+function hay(w){ return [w.bin, w.origin||'', w.name, w.grape, w.region, w.vin, w.story, w.wine, w.place, w.people, (w.pairs||[]).join(' '), w.glassware||'', w.format||''].join(' ').toLowerCase(); }
 function hl(t){ if(!state.q) return esc(t); const q = state.q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); return esc(t).replace(new RegExp('('+q+')','ig'),'<mark>$1</mark>'); }
 function priceOf(w){
   if (w.list==='btg') return money(w.glass) + ' / ' + money(w.bottle);
@@ -563,6 +567,7 @@ function card(w, i, pre){
       (tags.length?'<span class="tags">'+tags.join('')+'</span>':'')+'</span>'+
     '</button>'+
     '<div class="body">'+
+      (w.origin?'<nav class="origin" aria-label="Where it comes from">'+w.origin.split(/\s*>\s*/).filter(Boolean).map(p=>'<span>'+hl(p)+'</span>').join('<i aria-hidden="true">›</i>')+'</nav>':'')+
       '<div class="tell"><h4>Tell the table</h4><p>'+hl(w.story)+'</p></div>'+
       fact('wine','The wine')+fact('place','The place')+fact('people','The people')+
       '<div class="updated">'+(w.bin?'Bin '+esc(w.bin)+' · ':'')+esc(w.status||'')+(w.status?' · ':'')+'sources: '+esc((w.src||[]).join(', '))+'</div>'+
