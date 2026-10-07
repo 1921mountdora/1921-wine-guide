@@ -571,7 +571,7 @@ function card(w, i, pre){
     '<div class="body">'+
       (w.origin?'<nav class="origin" aria-label="Where it comes from">'+w.origin.split(/\s*>\s*/).filter(Boolean).map(p=>'<span>'+hl(p)+'</span>').join('<i aria-hidden="true">›</i>')+'</nav>':'')+
       '<div class="tell"><h4>Tell the table</h4><p>'+hl(w.story)+'</p></div>'+
-      fact('vnote', w.vin ? 'The '+String(w.vin).replace(/^’|^'/,'') + ' vintage' : 'The vintage')+fact('wine','The wine')+fact('place','The place')+fact('people','The people')+
+      fact('vnote', w.vin ? 'The '+esc(w.vin)+' vintage' : 'The vintage')+fact('wine','The wine')+fact('place','The place')+fact('people','The people')+
       '<div class="updated">'+(w.bin?'Bin '+esc(w.bin)+' · ':'')+esc(w.status||'')+(w.status?' · ':'')+'sources: '+esc((w.src||[]).join(', '))+'</div>'+
     '</div></div>';
 }
