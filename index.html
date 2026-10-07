@@ -505,7 +505,7 @@ function fromCSV(t){
   const title=r=>{ const p=g(r,'Producer'), n=g(r,'Wine Name'); if(!p&&!n) return g(r,'Wine'); return n? (p?p+" '"+n+"'":n) : p; };
   return R.filter(r=>title(r) && !/^(hide|hidden|off)$/i.test(g(r,'Status'))).map(r=>({
     bin:g(r,'Bin'), list:LIST[g(r,'List').toLowerCase()]||'bottle', color:COL[g(r,'Color').toLowerCase()]||'red',
-    geek:/^(y|yes|x|true|1|✓|geek)$/i.test(g(r,'Geek')), name:title(r), grape:g(r,'Grape'), region:g(r,'Region'),
+    geek:/^(y|yes|x|true|1|✓|geek)$/i.test(g(r,'Geek')), icon:/^(y|yes|x|true|1|✓|icon)$/i.test(g(r,'Icon')), name:title(r), grape:g(r,'Grape'), region:g(r,'Region'),
     vin:g(r,'Vintage').replace(/^’/,"'"), glass:num(g(r,'Glass $')), bottle:num(g(r,'Bottle $')), format:g(r,'Format'),
     glassware:g(r,'Glassware'), story:g(r,'Tell the table'), wine:g(r,'The wine'), place:g(r,'The place'), people:g(r,'The people'),
     origin:g(r,'Origin'), src:g(r,'Sources').split(/\s*,\s*/).filter(Boolean), status:g(r,'Status')}));
@@ -524,6 +524,7 @@ const CHIPS = [
   {k:'white', label:'Whites'},
   {k:'rose', label:'Rosé'},
   {k:'red', label:'Reds'},
+  {k:'icon', label:'Icons'},
   {k:'geek', label:'Geeky'}
 ];
 const state = {chip:'all', q:'', dish:'', open:new Set()};
@@ -544,7 +545,7 @@ function priceOf(w){
 }
 function matches(w){
   const c = state.chip;
-  if (c==='geek') return false;
+  if (c==='geek' || c==='icon') return false;
   if (c==='btg'){ if (w.list!=='btg' && w.list!=='hh') return false; }
   else if (c==='bottle'){ if (w.list!=='bottle') return false; }
   else if (c!=='all' && w.color!==c) return false;
@@ -589,17 +590,19 @@ function render(){
       out.push(card(w,i));
     });
   });
-  if (state.chip==='all' || state.chip==='geek'){
-    const g = WINES.map((w,i)=>[w,i]).filter(([w])=>w.geek && (!state.q || hay(w).includes(state.q.toLowerCase())))
+  [{k:'icon', flag:'icon', label:'Icons', note:'Iconic, world-class bottles', pre:'i', col:'Icon'},
+   {k:'geek', flag:'geek', label:'Geeky', note:'For the wine nerds', pre:'g', col:'Geek'}].forEach(S => {
+    if (state.chip!=='all' && state.chip!==S.k) return;
+    const g = WINES.map((w,i)=>[w,i]).filter(([w])=>w[S.flag] && (!state.q || hay(w).includes(state.q.toLowerCase())))
       .sort((a,b)=> (COLOR_ORDER[a[0].color]-COLOR_ORDER[b[0].color]) || String(a[0].bin).localeCompare(String(b[0].bin)));
     if (g.length){
-      if (state.chip==='geek') n += g.length;
-      out.push('<div class="menuhead">Geeky<span class="note">For the wine nerds · '+g.length+' wine'+(g.length>1?'s':'')+'</span></div>');
-      g.forEach(([w,i]) => out.push(card(w,i,'g')));
-    } else if (state.chip==='geek') {
-      out.push('<div class="empty">No Geeky picks yet. Mark wines in the Geek column of the Facts tab.</div>');
+      if (state.chip===S.k) n += g.length;
+      out.push('<div class="menuhead">'+S.label+'<span class="note">'+S.note+' · '+g.length+' wine'+(g.length>1?'s':'')+'</span></div>');
+      g.forEach(([w,i]) => out.push(card(w,i,S.pre)));
+    } else if (state.chip===S.k) {
+      out.push('<div class="empty">No '+S.label+' picks yet. Mark wines in the '+S.col+' column of the Facts tab.</div>');
     }
-  }
+  });
   $('#list').innerHTML = out.join('') || '<div class="empty">No wines match. Try another search.</div>';
   $('#status').innerHTML = n + ' of ' + WINES.length + ' wines' + (SOURCE==='live'?' · live from the sheet':'');
   $('#clear').hidden = !state.q;
