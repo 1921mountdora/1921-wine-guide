@@ -502,9 +502,10 @@ function fromCSV(t){
   const num=v=>{ const x=parseFloat(String(v).replace(/[$,]/g,'')); return isNaN(x)?'':x; };
   const LIST={'by the glass':'btg','btg':'btg','happy hour':'hh','hh':'hh','bottle':'bottle'};
   const COL={'sparkling':'sparkling','white':'white','rosé':'rose','rose':'rose','red':'red'};
-  return R.filter(r=>g(r,'Wine') && !/^(hide|hidden|off)$/i.test(g(r,'Status'))).map(r=>({
+  const title=r=>{ const p=g(r,'Producer'), n=g(r,'Wine Name'); if(!p&&!n) return g(r,'Wine'); return n? (p?p+" '"+n+"'":n) : p; };
+  return R.filter(r=>title(r) && !/^(hide|hidden|off)$/i.test(g(r,'Status'))).map(r=>({
     bin:g(r,'Bin'), list:LIST[g(r,'List').toLowerCase()]||'bottle', color:COL[g(r,'Color').toLowerCase()]||'red',
-    geek:/^(y|yes|x|true|1|✓|geek)$/i.test(g(r,'Geek')), name:g(r,'Wine'), grape:g(r,'Grape'), region:g(r,'Region'),
+    geek:/^(y|yes|x|true|1|✓|geek)$/i.test(g(r,'Geek')), name:title(r), grape:g(r,'Grape'), region:g(r,'Region'),
     vin:g(r,'Vintage').replace(/^’/,"'"), glass:num(g(r,'Glass $')), bottle:num(g(r,'Bottle $')), format:g(r,'Format'),
     glassware:g(r,'Glassware'), story:g(r,'Tell the table'), wine:g(r,'The wine'), place:g(r,'The place'), people:g(r,'The people'),
     origin:g(r,'Origin'), src:g(r,'Sources').split(/\s*,\s*/).filter(Boolean), status:g(r,'Status')}));
