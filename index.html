@@ -524,7 +524,7 @@ const CHIPS = [
   {k:'white', label:'Whites'},
   {k:'rose', label:'Rosé'},
   {k:'red', label:'Reds'},
-  {k:'geek', label:'Geek'}
+  {k:'geek', label:'Geeky'}
 ];
 const state = {chip:'all', q:'', dish:'', open:new Set()};
 try{ const s = JSON.parse(localStorage.getItem('wg_state')||'{}'); if(s.chip) state.chip=s.chip; }catch(e){}
@@ -594,10 +594,10 @@ function render(){
       .sort((a,b)=> (COLOR_ORDER[a[0].color]-COLOR_ORDER[b[0].color]) || String(a[0].bin).localeCompare(String(b[0].bin)));
     if (g.length){
       if (state.chip==='geek') n += g.length;
-      out.push('<div class="menuhead">Geek<span class="note">For the wine nerds · '+g.length+' wine'+(g.length>1?'s':'')+'</span></div>');
+      out.push('<div class="menuhead">Geeky<span class="note">For the wine nerds · '+g.length+' wine'+(g.length>1?'s':'')+'</span></div>');
       g.forEach(([w,i]) => out.push(card(w,i,'g')));
     } else if (state.chip==='geek') {
-      out.push('<div class="empty">No Geek picks yet. Mark wines in the Geek column of the Wine Facts sheet.</div>');
+      out.push('<div class="empty">No Geeky picks yet. Mark wines in the Geek column of the Facts tab.</div>');
     }
   }
   $('#list').innerHTML = out.join('') || '<div class="empty">No wines match. Try another search.</div>';
