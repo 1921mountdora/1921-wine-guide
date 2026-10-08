@@ -159,11 +159,10 @@
 </div></div>
 
 <main>
-  <div class="banner"><b>Prototype.</b> The by-the-glass list plus the best-selling bottles. Every fact is checked against the producer, importer or a major wine publication (sources at the bottom of each card). Drafts until Adam signs off.</div>
   <div class="status-line" id="status"></div>
   <div id="list"></div>
 </main>
-<footer>1921 Mount Dora · Cellar Notes prototype<br>Prices match the printed list. Ask a manager before quoting a vintage that isn't shown.</footer>
+<footer>1921 Mount Dora · Cellar Notes<br>Prices match the printed list. Ask a manager before quoting a vintage that isn't shown.</footer>
 
 <div id="quiz"><div class="qwrap" id="qwrap"></div></div>
 
@@ -572,7 +571,7 @@ function card(w, i, pre){
       (w.origin?'<nav class="origin" aria-label="Where it comes from">'+w.origin.split(/\s*>\s*/).filter(Boolean).map(p=>'<span>'+hl(p)+'</span>').join('<i aria-hidden="true">›</i>')+'</nav>':'')+
       '<div class="tell"><h4>Tell the table</h4><p>'+hl(w.story)+'</p></div>'+
       fact('vnote', w.vin ? 'The '+esc(w.vin)+' vintage' : 'The vintage')+fact('wine','The wine')+fact('place','The place')+fact('people','The people')+
-      '<div class="updated">'+(w.bin?'Bin '+esc(w.bin)+' · ':'')+(w.page?'Wine book p. '+esc(w.page)+' · ':'')+esc(w.status||'')+(w.status?' · ':'')+'sources: '+esc((w.src||[]).join(', '))+'</div>'+
+      '<div class="updated">'+(w.bin?'Bin '+esc(w.bin)+' · ':'')+(w.page?'Wine book p. '+esc(w.page)+' · ':'')+((w.status&&!/^(draft|final)$/i.test(w.status))?esc(w.status)+' · ':'')+'sources: '+esc((w.src||[]).join(', '))+'</div>'+
     '</div></div>';
 }
 function render(){
