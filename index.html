@@ -499,16 +499,40 @@ function fromCSV(t){
   const R=parseCSV(t); const H=R.shift().map(h=>h.trim()); const ix=n=>H.indexOf(n);
   const g=(r,n)=>{ const i=ix(n); return i<0?'':String(r[i]??'').trim(); };
   const num=v=>{ const x=parseFloat(String(v).replace(/[$,]/g,'')); return isNaN(x)?'':x; };
-  const LIST={'by the glass':'btg','btg':'btg','happy hour':'hh','hh':'hh','bottle':'bottle'};
+  const LIST={'by the glass':'btg','btg':'btg','happy hour':'hh','hh':'hh','bottle':'bottle','off list':'off','off':'off'};
+  const nb=v=>{ const x=parseFloat(v); return isNaN(x)?String(v||'').trim():String(x); };
   const COL={'sparkling':'sparkling','white':'white','rosé':'rose','rose':'rose','red':'red'};
   const title=r=>{ const p=g(r,'Producer'), n=g(r,'Wine Name'); if(!p&&!n) return g(r,'Wine'); return n? (p?p+" '"+n+"'":n) : p; };
-  return R.filter(r=>title(r) && !/^(hide|hidden|off)$/i.test(g(r,'Status'))).map(r=>({
-    bin:g(r,'Bin'), list:LIST[g(r,'List').toLowerCase()]||'bottle', color:COL[g(r,'Color').toLowerCase()]||'red',
+  const facts = R.filter(r=>title(r) && !/^(hide|hidden|off)$/i.test(g(r,'Status'))).map(r=>({
+    bin:nb(g(r,'Bin')), list:LIST[g(r,'List').toLowerCase()]||'bottle', color:COL[g(r,'Color').toLowerCase()]||'red',
     geek:/^(y|yes|x|true|1|✓|geek)$/i.test(g(r,'Geek')), icon:/^(y|yes|x|true|1|✓|icon)$/i.test(g(r,'Icon')), name:title(r), grape:g(r,'Grape'), region:g(r,'Region'),
     vin:g(r,'Vintage').replace(/^’/,"'"), glass:num(g(r,'Glass $')), bottle:num(g(r,'Bottle $')), format:g(r,'Format'),
     glassware:g(r,'Glassware'), story:g(r,'Tell the table'), wine:g(r,'The wine'), place:g(r,'The place'), people:g(r,'The people'),
-    origin:g(r,'Origin'), vnote:g(r,'Vintage note'), page:g(r,'Book page'), src:g(r,'Sources').split(/\s*,\s*/).filter(Boolean), status:g(r,'Status')}));
+    origin:g(r,'Origin'), vnote:g(r,'Vintage note'), page:g(r,'Book page'), src:g(r,'Sources').split(/\s*,\s*/).filter(Boolean), status:g(r,'Status')}))
+    .filter(w=>w.list!=='off');
+  // Glass pours come from the "Pour …" columns in Facts, which mirror the Live rows of Bev Flow Data.
+  // When they are present they decide the By the Glass / Happy Hour section; the List column only decides Bottles.
+  if (ix('Pour Wine')<0) return facts;
+  const pours = R.filter(r=>g(r,'Pour Wine')).map(r=>({sec:g(r,'Pour Section'), slot:g(r,'Pour Slot'), bin:nb(g(r,'Pour Bin')),
+    wine:g(r,'Pour Wine'), glass:num(g(r,'Pour Glass $')), bottle:num(g(r,'Pour Bottle $'))}));
+  const byBin={}; facts.forEach(f=>{ if(f.bin && !byBin[f.bin]) byBin[f.bin]=f; });
+  const out = facts.filter(f=>f.list==='bottle');
+  pours.forEach((p,k)=>{
+    const hh=/happy/i.test(p.sec), f=p.bin && byBin[p.bin];
+    const base = f ? Object.assign({}, f) : {bin:p.bin, color:guessColor(p.slot+' '+p.wine), name:p.wine.replace(/\s*(['’]\d\d|NV)\s*$/,''), grape:p.slot.replace(/\s*\(\d\)$/,''), region:'',
+      vin:((p.wine.match(/['’]\d\d\b|\bNV\b/)||[''])[0]).replace('’',"'"), story:'', src:[], stub:true};
+    const pv=((p.wine.match(/['’]\d\d\b|\bNV\b/)||[''])[0]).replace('’',"'");
+    out.push(Object.assign(base, {list:hh?'hh':'btg', glass:p.glass, bottle:hh?'':p.bottle, pour:k, geek:false, icon:false},
+      pv && pv!==base.vin ? {vin:pv, vnote:''} : {}));
+  });
+  return out;
 }
+function guessColor(t){ t=t.toLowerCase();
+  if (/\bros[eé]\b/.test(t)) return 'rose';
+  if (/sparkl|bubbl|prosecco|brut|cava|champagne|cr[eé]mant|moscato|lambrusco/.test(t)) return 'sparkling';
+  if (/cabernet|merlot|pinot noir|syrah|shiraz|grenache|garnatxa|malbec|gamay|sangiovese|chianti|montepulciano|tempranillo|zinfandel|\bred\b|rosso|tinto|rouge/.test(t)) return 'red';
+  if (/white|blanc|bianco|grigio|gris|chardonnay|riesling|chenin|sauvignon|trebbiano|albari|verdejo|viognier|vermentino|gr[uü]ner/.test(t)) return 'white';
+  return 'red'; }
 try{ const c=JSON.parse(localStorage.getItem('wg_feed')||'null'); if(c&&c.length){ WINES=c; SOURCE='saved copy'; } }catch(e){}
 async function loadFeed(){
   try{ const r=await fetch(FEED_URL,{cache:'no-store'}); if(!r.ok) throw 0; const w=fromCSV(await r.text());
@@ -538,9 +562,10 @@ const COLOR_ORDER = {sparkling:0, white:1, rose:2, red:3};
 function hay(w){ return [w.bin, w.origin||'', w.vnote||'', w.name, w.grape, w.region, w.vin, w.story, w.wine, w.place, w.people, (w.pairs||[]).join(' '), w.glassware||'', w.format||''].join(' ').toLowerCase(); }
 function hl(t){ if(!state.q) return esc(t); const q = state.q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); return esc(t).replace(new RegExp('('+q+')','ig'),'<mark>$1</mark>'); }
 function priceOf(w){
-  if (w.list==='btg') return money(w.glass) + ' / ' + money(w.bottle);
-  if (w.list==='hh') return money(w.glass);
-  return money(w.bottle);
+  const m = v => (v===''||v==null||Number(v)===0) ? '' : money(v);
+  if (w.list==='btg') return [m(w.glass), m(w.bottle)].filter(Boolean).join(' / ');
+  if (w.list==='hh') return m(w.glass);
+  return m(w.bottle);
 }
 function matches(w){
   const c = state.chip;
@@ -569,7 +594,7 @@ function card(w, i, pre){
     '</button>'+
     '<div class="body">'+
       (w.origin?'<nav class="origin" aria-label="Where it comes from">'+w.origin.split(/\s*>\s*/).filter(Boolean).map(p=>'<span>'+hl(p)+'</span>').join('<i aria-hidden="true">›</i>')+'</nav>':'')+
-      '<div class="tell"><h4>Tell the table</h4><p>'+hl(w.story)+'</p></div>'+
+      (w.story ? '<div class="tell"><h4>Tell the table</h4><p>'+hl(w.story)+'</p></div>' : (w.stub ? '<div class="tell"><h4>New pour</h4><p>Notes for this wine are on the way. Ask a manager for the talking points.</p></div>' : ''))+
       fact('vnote', w.vin ? 'The '+esc(w.vin)+' vintage' : 'The vintage')+fact('wine','The wine')+fact('place','The place')+fact('people','The people')+
       '<div class="updated">'+(w.bin?'Bin '+esc(w.bin)+' · ':'')+(w.page?'Wine book p. '+esc(w.page)+' · ':'')+((w.status&&!/^(draft|final)$/i.test(w.status))?esc(w.status)+' · ':'')+'sources: '+esc((w.src||[]).join(', '))+'</div>'+
     '</div></div>';
@@ -579,7 +604,7 @@ function render(){
   let n = 0;
   ['btg','bottle'].forEach(list => {
     const rows = WINES.map((w,i)=>[w,i]).filter(([w])=>(w.list===list || (list==='btg' && w.list==='hh')) && matches(w))
-      .sort((a,b)=> (COLOR_ORDER[a[0].color]-COLOR_ORDER[b[0].color]) || (list==='bottle' ? String(a[0].bin).localeCompare(String(b[0].bin)) : a[1]-b[1]));
+      .sort((a,b)=> (COLOR_ORDER[a[0].color]-COLOR_ORDER[b[0].color]) || (list==='bottle' ? String(a[0].bin).localeCompare(String(b[0].bin)) : ((a[0].pour??a[1])-(b[0].pour??b[1]))));
     if (!rows.length) return;
     n += rows.length;
     out.push('<div class="menuhead">'+LISTS[list][0]+'<span class="note">'+LISTS[list][1]+' price · '+rows.length+' wine'+(rows.length>1?'s':'')+'</span></div>');
